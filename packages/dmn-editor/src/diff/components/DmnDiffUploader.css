@@ -1,0 +1,125 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+.dmn-diff-uploader {
+  padding: 24px;
+  background: var(--pf-v5-global--BackgroundColor--100);
+}
+
+.dmn-diff-uploader__title {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.dmn-diff-uploader__container {
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.dmn-diff-uploader__version {
+  flex: 1;
+  min-width: 300px;
+  max-width: 500px;
+}
+
+.dmn-diff-uploader__version-label {
+  font-size: var(--pf-v5-global--FontSize--md);
+  font-weight: var(--pf-v5-global--FontWeight--bold);
+  margin-bottom: 8px;
+  display: block;
+}
+
+.dmn-diff-uploader__upload-area {
+  border: 2px dashed var(--pf-v5-global--BorderColor--100);
+  border-radius: 4px;
+  padding: 24px;
+  text-align: center;
+  background: var(--pf-v5-global--BackgroundColor--200);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.dmn-diff-uploader__upload-area:hover {
+  border-color: var(--pf-v5-global--primary-color--100);
+  background: var(--pf-v5-global--BackgroundColor--light-100);
+}
+
+.dmn-diff-uploader__upload-area--drag-over {
+  border-color: var(--pf-v5-global--primary-color--100);
+  background: var(--pf-v5-global--BackgroundColor--light-100);
+  border-style: solid;
+}
+
+.dmn-diff-uploader__upload-area--has-error {
+  border-color: var(--pf-v5-global--danger-color--100);
+  background: var(--pf-v5-global--BackgroundColor--light-100);
+}
+
+.dmn-diff-uploader__upload-icon {
+  font-size: 48px;
+  color: var(--pf-v5-global--Color--200);
+  margin-bottom: 12px;
+}
+
+.dmn-diff-uploader__upload-text {
+  margin-bottom: 8px;
+  color: var(--pf-v5-global--Color--100);
+}
+
+.dmn-diff-uploader__upload-hint {
+  font-size: var(--pf-v5-global--FontSize--sm);
+  color: var(--pf-v5-global--Color--200);
+}
+
+.dmn-diff-uploader__file-info {
+  margin-top: 12px;
+}
+
+.dmn-diff-uploader__file-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.dmn-diff-uploader__error {
+  margin-top: 12px;
+}
+
+.dmn-diff-uploader__loading {
+  margin-top: 12px;
+  text-align: center;
+}
+
+.dmn-diff-uploader__compare-section {
+  margin-top: 32px;
+  text-align: center;
+}
+
+.dmn-diff-uploader__input {
+  display: none;
+}
