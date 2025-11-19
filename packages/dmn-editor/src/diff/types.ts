@@ -44,3 +44,52 @@ export interface DmnDiffState {
   isLoadingA: boolean;
   isLoadingB: boolean;
 }
+
+export enum DiffChangeType {
+  ADDED = "ADDED",
+  REMOVED = "REMOVED",
+  MODIFIED = "MODIFIED",
+}
+
+export interface DiffPropertyChange<T = unknown> {
+  property: string;
+  previousValue: T | undefined;
+  currentValue: T | undefined;
+}
+
+export interface NodePosition {
+  x: number;
+  y: number;
+}
+
+export interface NodeSize {
+  width: number;
+  height: number;
+}
+
+export interface ElementDiff {
+  id: string;
+  elementType: string;
+  elementName?: string;
+  changeType: DiffChangeType;
+  changedProperties?: DiffPropertyChange[];
+}
+
+export interface NodeDiff extends ElementDiff {
+  kind: "node";
+  position?: NodePosition;
+  size?: NodeSize;
+}
+
+export interface EdgeDiff extends ElementDiff {
+  kind: "edge";
+  source?: string;
+  target?: string;
+  referenceKind?: string;
+}
+
+export interface DiffResult {
+  nodes: NodeDiff[];
+  edges: EdgeDiff[];
+  hasChanges: boolean;
+}
