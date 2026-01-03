@@ -19,6 +19,7 @@
 
 import * as React from "react";
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { Node, Edge } from "reactflow";
 import { useDmnDiffStore } from "./store/DmnDiffStore";
 import { DmnDiffFileVersion } from "./types";
 import { FileUploadArea } from "./components/DmnDiffUploader";
@@ -55,6 +56,73 @@ export const UnifiedDiffEditorView: React.FC = () => {
     setIsDiffListOpen((prev) => !prev);
   }, []);
 
+  const handleItemClick = useCallback(
+    (elementId: string) => {
+      if (!editorRef) {
+        return;
+      }
+
+      const diagramRef = editorRef.getDiagramRef();
+
+      if (!diagramRef) {
+        return;
+      }
+
+      const rfInstance = diagramRef.getReactFlowInstance();
+
+      if (!rfInstance || !model) {
+        return;
+      }
+
+      const idPart = elementId.split("#").pop() || elementId;
+      const normalizedNodeId = `#${idPart}`;
+      const normalizedEdgeId = idPart;
+
+      const nodes = rfInstance.getNodes();
+      const edges = rfInstance.getEdges();
+
+      const node = nodes.find((n: Node) => n.id === normalizedNodeId);
+
+      if (node) {
+        rfInstance.fitView({
+          nodes: [node],
+          duration: 300,
+          padding: 0.3,
+          maxZoom: 1.5,
+        });
+        return;
+      }
+
+      const edge = edges.find((e: Edge) => e.id === normalizedEdgeId || e.id === normalizedNodeId);
+
+      if (edge) {
+        const sourceNode = nodes.find((n: Node) => n.id === edge.source);
+        const targetNode = nodes.find((n: Node) => n.id === edge.target);
+
+        if (sourceNode && targetNode) {
+          const sourceCenterX = sourceNode.position.x + (sourceNode.width ?? 200) / 2;
+          const sourceCenterY = sourceNode.position.y + (sourceNode.height ?? 100) / 2;
+          const targetCenterX = targetNode.position.x + (targetNode.width ?? 200) / 2;
+          const targetCenterY = targetNode.position.y + (targetNode.height ?? 100) / 2;
+
+          const centerX = (sourceCenterX + targetCenterX) / 2;
+          const centerY = (sourceCenterY + targetCenterY) / 2;
+
+          rfInstance.setCenter(centerX, centerY, { duration: 300 });
+        } else if (sourceNode) {
+          const centerX = sourceNode.position.x + (sourceNode.width ?? 200) / 2;
+          const centerY = sourceNode.position.y + (sourceNode.height ?? 100) / 2;
+          rfInstance.setCenter(centerX, centerY, { duration: 300 });
+        } else if (targetNode) {
+          const centerX = targetNode.position.x + (targetNode.width ?? 200) / 2;
+          const centerY = targetNode.position.y + (targetNode.height ?? 100) / 2;
+          rfInstance.setCenter(centerX, centerY, { duration: 300 });
+        }
+      }
+    },
+    [editorRef, model]
+  );
+
   const evaluationResultsByNodeId = useMemo(() => new Map(), []);
   const validationMessages = useMemo(() => ({}), []);
 
@@ -80,6 +148,7 @@ export const UnifiedDiffEditorView: React.FC = () => {
             diffResult={diffResult}
             isOpen={isDiffListOpen}
             onToggle={handleToggleDiffList}
+            onItemClick={handleItemClick}
             versionA={versionA?.model}
             versionB={versionB?.model}
           />

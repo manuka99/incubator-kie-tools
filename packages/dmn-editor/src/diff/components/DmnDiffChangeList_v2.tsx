@@ -18,7 +18,7 @@
  */
 
 import * as React from "react";
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { Button } from "@patternfly/react-core/dist/js/components/Button";
 import { Title } from "@patternfly/react-core/dist/js/components/Title";
 import { Label } from "@patternfly/react-core/dist/js/components/Label";
@@ -53,8 +53,48 @@ export interface DmnDiffChangeList_v2Props {
   readonly diffResult: DiffResult | null;
   readonly isOpen: boolean;
   readonly onToggle: () => void;
+  readonly onItemClick?: (elementId: string) => void;
   readonly versionA?: Normalized<DmnLatestModel>;
   readonly versionB?: Normalized<DmnLatestModel>;
+}
+
+function useVirtualizedList<T>(items: T[], containerRef: React.RefObject<HTMLDivElement>, itemHeight: number = 48) {
+  const [visibleRange, setVisibleRange] = React.useState({ start: 0, end: items.length });
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || items.length === 0) {
+      setVisibleRange({ start: 0, end: items.length });
+      return;
+    }
+
+    const updateVisibleRange = () => {
+      const scrollTop = container.scrollTop;
+      const containerHeight = container.clientHeight;
+
+      const itemsPerView = Math.ceil(containerHeight / itemHeight);
+
+      const start = Math.max(0, Math.floor(scrollTop / itemHeight) - 3);
+
+      const end = Math.min(items.length, start + itemsPerView + 6);
+
+      setVisibleRange({ start, end });
+    };
+
+    updateVisibleRange();
+
+    container.addEventListener("scroll", updateVisibleRange, { passive: true });
+
+    const resizeObserver = new ResizeObserver(updateVisibleRange);
+    resizeObserver.observe(container);
+
+    return () => {
+      container.removeEventListener("scroll", updateVisibleRange);
+      resizeObserver.disconnect();
+    };
+  }, [containerRef, itemHeight, items.length]);
+
+  return visibleRange;
 }
 
 /** Displays property changes with previous and current values */
@@ -1012,57 +1052,97 @@ const BoxedExpressionDiffDetails: React.FC<{
   }
 };
 
+const getChangeTypeColor = (changeType: DiffChangeType): "green" | "red" | "orange" => {
+  switch (changeType) {
+    case DiffChangeType.ADDED:
+      return "green";
+    case DiffChangeType.REMOVED:
+      return "red";
+    case DiffChangeType.MODIFIED:
+      return "orange";
+  }
+};
+
+const getChangeTypeLabel = (changeType: DiffChangeType): string => {
+  switch (changeType) {
+    case DiffChangeType.ADDED:
+      return "Added";
+    case DiffChangeType.REMOVED:
+      return "Removed";
+    case DiffChangeType.MODIFIED:
+      return "Changed";
+  }
+};
+
 /**
  * Individual row component for a node with boxed expression diff
  */
 const NodeDiffRow: React.FC<{
   node: NodeDiff;
   index: number;
+  actualIndex: number;
+  itemHeight: number;
+  onItemClick?: (elementId: string) => void;
   versionA?: Normalized<DmnLatestModel>;
   versionB?: Normalized<DmnLatestModel>;
-}> = ({ node, index, versionA, versionB }) => {
+}> = ({ node, index, actualIndex, itemHeight, onItemClick, versionA, versionB }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const hasBoxedExpressionDiff = node.boxedExpressionDiff !== undefined;
+  const hasPropertyDiff = node.changedProperties && node.changedProperties.length > 0;
+  const isExpandable = hasBoxedExpressionDiff || hasPropertyDiff;
 
-  const handleToggle = useCallback(() => {
-    if (hasBoxedExpressionDiff) {
-      setIsExpanded((prev) => !prev);
-    }
-  }, [hasBoxedExpressionDiff]);
+  const displayName = node.elementName || node.id;
+  const truncatedName = displayName.length > 40 ? `${displayName.substring(0, 40)}...` : displayName;
 
-  const getChangeTypeColor = (changeType: DiffChangeType): "green" | "red" | "orange" => {
-    switch (changeType) {
-      case DiffChangeType.ADDED:
-        return "green";
-      case DiffChangeType.REMOVED:
-        return "red";
-      case DiffChangeType.MODIFIED:
-        return "orange";
-    }
-  };
+  const handleClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (onItemClick) {
+        onItemClick(node.id);
+      }
+      if (isExpandable) {
+        setIsExpanded((prev) => !prev);
+      }
+    },
+    [onItemClick, node.id, isExpandable]
+  );
 
-  const getChangeTypeLabel = (changeType: DiffChangeType): string => {
-    switch (changeType) {
-      case DiffChangeType.ADDED:
-        return "Added";
-      case DiffChangeType.REMOVED:
-        return "Removed";
-      case DiffChangeType.MODIFIED:
-        return "Changed";
-    }
-  };
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        e.stopPropagation();
+        if (onItemClick) {
+          onItemClick(node.id);
+        }
+        if (isExpandable) {
+          setIsExpanded((prev) => !prev);
+        }
+      }
+    },
+    [onItemClick, node.id, isExpandable]
+  );
 
   return (
     <>
       <tr
         className={`dmn-diff-change-list-v2__table-row ${
-          hasBoxedExpressionDiff ? "dmn-diff-change-list-v2__table-row--expandable" : ""
+          isExpandable ? "dmn-diff-change-list-v2__table-row--expandable" : ""
         } ${isExpanded ? "dmn-diff-change-list-v2__table-row--expanded" : ""}`}
-        onClick={handleToggle}
+        onClick={handleClick}
+        onKeyDown={handleKeyDown}
+        tabIndex={0}
+        role="button"
+        style={{ height: itemHeight }}
       >
-        <td className="dmn-diff-change-list-v2__table-cell dmn-diff-change-list-v2__table-cell--element">
-          {hasBoxedExpressionDiff && (
+        <td className="dmn-diff-change-list-v2__table-cell dmn-diff-change-list-v2__table-cell--index">
+          {actualIndex}
+        </td>
+        <td
+          className="dmn-diff-change-list-v2__table-cell dmn-diff-change-list-v2__table-cell--element"
+          title={displayName}
+        >
+          {isExpandable && (
             <span
               className={`dmn-diff-change-list-v2__expand-icon ${
                 isExpanded ? "dmn-diff-change-list-v2__expand-icon--expanded" : ""
@@ -1071,7 +1151,7 @@ const NodeDiffRow: React.FC<{
               <AngleRightIcon />
             </span>
           )}
-          {node.elementName || node.id}
+          {truncatedName}
         </td>
         <td className="dmn-diff-change-list-v2__table-cell dmn-diff-change-list-v2__table-cell--type">
           {node.elementType}
@@ -1080,13 +1160,33 @@ const NodeDiffRow: React.FC<{
           <Label color={getChangeTypeColor(node.changeType)}>{getChangeTypeLabel(node.changeType)}</Label>
         </td>
         <td className="dmn-diff-change-list-v2__table-cell">
-          {hasBoxedExpressionDiff ? `Expression: ${node.boxedExpressionDiff!.kind}` : "No expression changes"}
+          {hasBoxedExpressionDiff
+            ? `Expression: ${node.boxedExpressionDiff!.kind}`
+            : hasPropertyDiff
+              ? "Properties changed"
+              : "No details"}
         </td>
       </tr>
-      {isExpanded && hasBoxedExpressionDiff && (
+      {isExpanded && isExpandable && (
         <tr>
-          <td colSpan={4} className="dmn-diff-change-list-v2__details">
-            <BoxedExpressionDiffDetails diff={node.boxedExpressionDiff!} versionA={versionA} versionB={versionB} />
+          <td colSpan={5} className="dmn-diff-change-list-v2__details">
+            {hasPropertyDiff && (
+              <div className="dmn-diff-change-list-v2__nested-section">
+                <div className="dmn-diff-change-list-v2__nested-title" style={{ marginBottom: "8px" }}>
+                  Element Properties
+                </div>
+                <table className="dmn-diff-change-list-v2__details-table">
+                  <tbody>
+                    {node.changedProperties!.map((change) => (
+                      <PropertyChangeDisplay key={change.property} change={change} propertyName={change.property} />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            {hasBoxedExpressionDiff && (
+              <BoxedExpressionDiffDetails diff={node.boxedExpressionDiff!} versionA={versionA} versionB={versionB} />
+            )}
           </td>
         </tr>
       )}
@@ -1101,15 +1201,34 @@ export const DmnDiffChangeList_v2: React.FC<DmnDiffChangeList_v2Props> = ({
   diffResult,
   isOpen,
   onToggle,
+  onItemClick,
   versionA,
   versionB,
 }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
   const nodesWithExpressionDiffs = useMemo(() => {
     if (!diffResult?.hasChanges) {
       return [];
     }
-    return diffResult.nodes.filter((node) => node.boxedExpressionDiff !== undefined);
+    return diffResult.nodes.filter(
+      (node) => node.boxedExpressionDiff !== undefined || (node.changedProperties && node.changedProperties.length > 0)
+    );
   }, [diffResult]);
+
+  const visibleRange = useVirtualizedList(nodesWithExpressionDiffs, containerRef, 48);
+
+  const handleRowClick = useCallback(
+    (elementId: string) => {
+      if (onItemClick) {
+        onItemClick(elementId);
+      }
+    },
+    [onItemClick]
+  );
+
+  const visibleItems = useMemo(() => {
+    return nodesWithExpressionDiffs.slice(visibleRange.start, visibleRange.end);
+  }, [nodesWithExpressionDiffs, visibleRange]);
 
   const totalChanges = useMemo(() => {
     if (!diffResult?.hasChanges) {
@@ -1117,6 +1236,10 @@ export const DmnDiffChangeList_v2: React.FC<DmnDiffChangeList_v2Props> = ({
     }
     return nodesWithExpressionDiffs.length;
   }, [diffResult, nodesWithExpressionDiffs]);
+
+  const itemHeight = 48;
+  const totalHeight = nodesWithExpressionDiffs.length * itemHeight;
+  const offsetY = visibleRange.start * itemHeight;
 
   if (!isOpen) {
     return (
@@ -1141,24 +1264,55 @@ export const DmnDiffChangeList_v2: React.FC<DmnDiffChangeList_v2Props> = ({
         </Title>
         <Button variant="plain" onClick={onToggle} aria-label="Close expression diff list" icon={<TimesIcon />} />
       </div>
-      <div className="dmn-diff-change-list-v2__content">
+      <div className="dmn-diff-change-list-v2__content" ref={containerRef}>
         {totalChanges === 0 ? (
           <div className="dmn-diff-change-list-v2__empty">No expression changes detected</div>
         ) : (
-          <div className="dmn-diff-change-list-v2__section">
+          <div className="dmn-diff-change-list-v2__table-wrapper" style={{ height: totalHeight }}>
             <table className="dmn-diff-change-list-v2__table">
               <thead>
                 <tr>
-                  <th className="dmn-diff-change-list-v2__table-header">Element</th>
-                  <th className="dmn-diff-change-list-v2__table-header">Type</th>
-                  <th className="dmn-diff-change-list-v2__table-header">Change</th>
+                  <th className="dmn-diff-change-list-v2__table-header dmn-diff-change-list-v2__table-header--index">
+                    #
+                  </th>
+                  <th className="dmn-diff-change-list-v2__table-header dmn-diff-change-list-v2__table-header--name">
+                    Element
+                  </th>
+                  <th className="dmn-diff-change-list-v2__table-header dmn-diff-change-list-v2__table-header--type">
+                    Type
+                  </th>
+                  <th className="dmn-diff-change-list-v2__table-header dmn-diff-change-list-v2__table-header--change">
+                    Change
+                  </th>
                   <th className="dmn-diff-change-list-v2__table-header">Details</th>
                 </tr>
               </thead>
               <tbody>
-                {nodesWithExpressionDiffs.map((node, index) => (
-                  <NodeDiffRow key={node.id} node={node} index={index} versionA={versionA} versionB={versionB} />
-                ))}
+                {offsetY > 0 && (
+                  <tr style={{ height: offsetY }}>
+                    <td colSpan={5} style={{ padding: 0, border: "none", height: offsetY }} />
+                  </tr>
+                )}
+                {visibleItems.map((node, index) => {
+                  const actualIndex = visibleRange.start + index;
+                  return (
+                    <NodeDiffRow
+                      key={node.id}
+                      node={node}
+                      index={index}
+                      actualIndex={actualIndex}
+                      itemHeight={itemHeight}
+                      onItemClick={handleRowClick}
+                      versionA={versionA}
+                      versionB={versionB}
+                    />
+                  );
+                })}
+                {totalHeight - offsetY - visibleItems.length * itemHeight > 0 && (
+                  <tr style={{ height: totalHeight - offsetY - visibleItems.length * itemHeight }}>
+                    <td colSpan={5} style={{ padding: 0, border: "none" }} />
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

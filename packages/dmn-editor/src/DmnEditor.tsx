@@ -73,6 +73,7 @@ export type DmnEditorRef = {
   updateDiff: (changedModelXml: string) => Promise<void>;
   closeDiff: () => void;
   getDiagramSvg: () => Promise<string | undefined>;
+  getDiagramRef: () => DiagramRef | null;
   openBoxedExpressionEditor: (nodeId: string) => void;
   getCommands: () => Commands;
 };
@@ -257,6 +258,7 @@ export const DmnEditorInternal = ({
       openDiff,
       updateDiff,
       closeDiff,
+      getDiagramRef: () => diagramRef.current,
       openBoxedExpressionEditor: (nodeId: string) => {
         dmnEditorStoreApi.setState((state) => {
           state.navigation.tab = DmnEditorTab.EDITOR;
