@@ -371,6 +371,8 @@ export const DmnDiffViewer: React.FC = () => {
         isOpen={isChangeListOpen}
         onToggle={toggleChangeList}
         onItemClick={handleItemClick}
+        versionA={versionA?.model}
+        versionB={versionB?.model}
       />
     </div>
   );

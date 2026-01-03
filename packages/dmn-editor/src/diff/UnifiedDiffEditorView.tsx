@@ -23,7 +23,7 @@ import { Node, Edge } from "reactflow";
 import { useDmnDiffStore } from "./store/DmnDiffStore";
 import { DmnDiffFileVersion } from "./types";
 import { FileUploadArea } from "./components/DmnDiffUploader";
-import { DmnDiffChangeList_v2 } from "./components/DmnDiffChangeList_v2";
+import { DmnDiffChangeList } from "./components/DmnDiffChangeList";
 import { DmnEditor, DmnEditorRef } from "../DmnEditor";
 import { getMarshaller } from "@kie-tools/dmn-marshaller";
 import { normalize } from "@kie-tools/dmn-marshaller/dist/normalization/normalize";
@@ -144,7 +144,7 @@ export const UnifiedDiffEditorView: React.FC = () => {
               locale="en"
             />
           </div>
-          <DmnDiffChangeList_v2
+          <DmnDiffChangeList
             diffResult={diffResult}
             isOpen={isDiffListOpen}
             onToggle={handleToggleDiffList}
