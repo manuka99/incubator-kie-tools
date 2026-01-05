@@ -1,3 +1,11 @@
+/*
+ * Copyright 2025-2026 Aletyx, Inc. (https://aletyx.ai)
+ * All Rights Reserved.
+ *
+ * This is proprietary software. Unauthorized copying, modification,
+ * distribution, or use of this software is strictly prohibited.
+ */
+
 import * as React from "react";
 import { useMemo, useState, useEffect, useRef } from "react";
 import { DmnLatestModel } from "@kie-tools/dmn-marshaller";

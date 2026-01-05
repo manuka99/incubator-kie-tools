@@ -1,3 +1,11 @@
+/*
+ * Copyright 2025-2026 Aletyx, Inc. (https://aletyx.ai)
+ * All Rights Reserved.
+ *
+ * This is proprietary software. Unauthorized copying, modification,
+ * distribution, or use of this software is strictly prohibited.
+ */
+
 import { useCallback } from "react";
 import { DmnLatestModel, getMarshaller } from "@kie-tools/dmn-marshaller";
 import { normalize, Normalized } from "@kie-tools/dmn-marshaller/dist/normalization/normalize";
