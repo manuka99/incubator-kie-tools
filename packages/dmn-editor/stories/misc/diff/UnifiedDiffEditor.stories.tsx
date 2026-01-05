@@ -19,10 +19,7 @@
 
 import * as React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import "@patternfly/react-core/dist/styles/base.css";
-import { DmnDiffSideBySideView } from "../../../src/diff/DmnDiffSideBySideView";
-import "reactflow/dist/style.css";
-import "../../../src/DmnEditor.css";
+import { UnifiedDiffEditorView } from "../../../src/diff/UnifiedDiffEditorView";
 
 const meta: Meta = {
   title: "Misc/DMN Diff",
@@ -32,10 +29,9 @@ const meta: Meta = {
 };
 
 export default meta;
+type Story = StoryObj<typeof UnifiedDiffEditorView>;
 
-type Story = StoryObj;
-
-export const Story3SideBySideView: Story = {
-  name: "Side by Side View",
-  render: () => <DmnDiffSideBySideView />,
+export const UnifiedEditor: Story = {
+  name: "Unified Diff Editor",
+  render: () => <UnifiedDiffEditorView />,
 };
