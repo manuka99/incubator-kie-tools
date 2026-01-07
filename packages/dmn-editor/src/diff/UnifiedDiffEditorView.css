@@ -1,0 +1,108 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+.dmn-unified-diff-view {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+}
+
+.dmn-unified-diff-view__viewer-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+}
+
+.dmn-unified-diff-view__upload-area {
+  position: absolute;
+  top: 100px;
+  z-index: 1;
+  pointer-events: none;
+  max-width: 400px;
+  width: 100%;
+}
+
+.dmn-unified-diff-view__upload-area--left {
+  left: 40px;
+}
+
+.dmn-unified-diff-view__upload-area--right {
+  right: 40px;
+}
+
+.dmn-unified-diff-view__upload-overlay {
+  pointer-events: auto;
+}
+
+.dmn-unified-diff-view__toolbar {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background-color: white;
+  padding: 10px;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  gap: 10px;
+  z-index: 1000;
+  align-items: center;
+}
+
+.dmn-unified-diff-view__toolbar-button {
+  background-color: transparent;
+  color: #0066cc;
+  border: 1px solid #0066cc;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.dmn-unified-diff-view__toolbar-button:hover {
+  background-color: rgba(0, 102, 204, 0.1);
+}
+
+.dmn-unified-diff-view__toolbar-button--primary {
+  background-color: #0066cc;
+  color: white;
+}
+
+.dmn-unified-diff-view__toolbar-button--primary:hover {
+  background-color: #0055aa;
+}
+
+.dmn-unified-diff-view__toolbar-button--secondary {
+  color: #6a6e73;
+  border-color: #6a6e73;
+}
+
+.dmn-unified-diff-view__toolbar-button--secondary:hover {
+  background-color: rgba(106, 110, 115, 0.1);
+}
+
+.dmn-unified-diff-view__toolbar-separator {
+  width: 1px;
+  height: 20px;
+  background-color: #d1d1d1;
+}
