@@ -1,3 +1,11 @@
+/*
+ * Copyright 2025-2026 Aletyx, Inc. (https://aletyx.ai)
+ * All Rights Reserved.
+ *
+ * This is proprietary software. Unauthorized copying, modification,
+ * distribution, or use of this software is strictly prohibited.
+ */
+
 import { mergeModels } from "../../src/diff/algorithms/mergeModels";
 import { DiffChangeType, DiffResult } from "../../src/diff/types";
 import { createEmptyModel, addDecision, TEST_NAMESPACE } from "./utils";

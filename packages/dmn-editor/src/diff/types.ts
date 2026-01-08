@@ -1,20 +1,9 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Copyright 2025-2026 Aletyx, Inc. (https://aletyx.ai)
+ * All Rights Reserved.
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * This is proprietary software. Unauthorized copying, modification,
+ * distribution, or use of this software is strictly prohibited.
  */
 
 import { Normalized } from "@kie-tools/dmn-marshaller/dist/normalization/normalize";
@@ -113,20 +102,12 @@ export type BoxedExpressionDiff =
   | ForDiff
   | ExpressionReplacementDiff;
 
-/**
- * Represents a diff where the entire expression has been replaced by another of a different type
- * (e.g., Literal Expression replaced by Context).
- *
- * NOTE: Instead of a granular diff, this provides the full `previousExpression` and `currentExpression`
- * objects. This allows consumers to fully visualize or process the "before" and "after" states,
- * preserving all nested details that might be lost in a shallow type check.
- */
 export interface ExpressionReplacementDiff {
   kind: "expressionReplacement";
   previousType: string;
   currentType: string;
-  previousExpression?: Normalized<BoxedExpression>; // Full expression from the base model for visualization
-  currentExpression?: Normalized<BoxedExpression>; // Full expression from the changed model for visualization
+  previousExpression?: Normalized<BoxedExpression>;
+  currentExpression?: Normalized<BoxedExpression>;
 }
 
 export interface LiteralExpressionDiff {
@@ -134,39 +115,20 @@ export interface LiteralExpressionDiff {
   text?: DiffPropertyChange;
 }
 
-/**
- * Tracks detailed changes to a Decision Table column.
- * Includes all DMN-defined properties to ensure accurate diffs, auditability, and future compatibility with minimal performance impact.
- */
 export interface DecisionTableColumnDiff {
-  // Label/Name
   label?: DiffPropertyChange;
-  name?: DiffPropertyChange; // For annotation columns
-
-  // Type
+  name?: DiffPropertyChange;
   typeRef?: DiffPropertyChange;
-
-  // Constraints
   inputValues?: DiffPropertyChange;
   outputValues?: DiffPropertyChange;
   defaultOutputEntry?: DiffPropertyChange;
-
-  // Column-level metadata
   description?: DiffPropertyChange;
-
-  // Input expression metadata (for input columns)
   inputExpressionLanguage?: DiffPropertyChange;
   inputExpressionDescription?: DiffPropertyChange;
-
-  // Input values metadata (for input columns)
   inputValuesExpressionLanguage?: DiffPropertyChange;
   inputValuesDescription?: DiffPropertyChange;
-
-  // Output values metadata (for output columns)
   outputValuesExpressionLanguage?: DiffPropertyChange;
   outputValuesDescription?: DiffPropertyChange;
-
-  // Default output metadata (for output columns)
   defaultOutputExpressionLanguage?: DiffPropertyChange;
   defaultOutputDescription?: DiffPropertyChange;
 }
@@ -176,30 +138,30 @@ export interface DecisionTableDiff {
   hitPolicy?: DiffPropertyChange;
   aggregation?: DiffPropertyChange;
   input: {
-    added: string[]; // IDs of added columns. Retrieve full details from the changed model.
-    removed: string[]; // IDs of removed columns. Retrieve full details from the base model.
-    modified: Record<string, DecisionTableColumnDiff>; // ID -> changes
+    added: string[];
+    removed: string[];
+    modified: Record<string, DecisionTableColumnDiff>;
   };
   output: {
-    added: string[]; // IDs of added columns. Retrieve full details from the changed model.
-    removed: string[]; // IDs of removed columns. Retrieve full details from the base model.
+    added: string[];
+    removed: string[];
     modified: Record<string, DecisionTableColumnDiff>;
   };
   annotation?: {
-    added: string[]; // IDs of added columns. Retrieve full details from the changed model.
-    removed: string[]; // IDs of removed columns. Retrieve full details from the base model.
+    added: string[];
+    removed: string[];
     modified: Record<string, DecisionTableColumnDiff>;
   };
   rules: {
-    added: string[]; // IDs of added rules. Retrieve full details from the changed model.
-    removed: string[]; // IDs of removed rules. Retrieve full details from the base model.
+    added: string[];
+    removed: string[];
     modified: Record<
       string,
       {
-        index?: DiffPropertyChange; // Index -> change
-        inputEntries: Record<number, DiffPropertyChange>; // Index -> change
-        outputEntries: Record<number, DiffPropertyChange>; // Index -> change
-        annotationEntries: Record<number, DiffPropertyChange>; // Index -> change
+        index?: DiffPropertyChange;
+        inputEntries: Record<number, DiffPropertyChange>;
+        outputEntries: Record<number, DiffPropertyChange>;
+        annotationEntries: Record<number, DiffPropertyChange>;
       }
     >;
   };
@@ -208,8 +170,8 @@ export interface DecisionTableDiff {
 export interface ContextDiff {
   kind: "context";
   entries: {
-    added: string[]; // IDs of added entries. Retrieve full details from the changed model.
-    removed: string[]; // IDs of removed entries. Retrieve full details from the base model.
+    added: string[];
+    removed: string[];
     modified: Record<
       string,
       {
@@ -225,9 +187,9 @@ export interface ContextDiff {
 export interface FunctionDefinitionDiff {
   kind: "functionDefinition";
   parameters: {
-    added: string[]; // IDs of added parameters. Retrieve full details from the changed model.
-    removed: string[]; // IDs of removed parameters. Retrieve full details from the base model.
-    modified: Record<string, { diffs: DiffPropertyChange[]; index?: DiffPropertyChange }>; // ID -> changes (including index)
+    added: string[];
+    removed: string[];
+    modified: Record<string, { diffs: DiffPropertyChange[]; index?: DiffPropertyChange }>;
   };
   expression?: BoxedExpressionDiff;
 }
@@ -235,8 +197,8 @@ export interface FunctionDefinitionDiff {
 export interface ListDiff {
   kind: "list";
   items: {
-    added: number[]; // Indexes of added items. Retrieve full details from the changed model.
-    removed: number[]; // Indexes of removed items. Retrieve full details from the base model.
+    added: number[];
+    removed: number[];
     modified: Record<number, { diff?: BoxedExpressionDiff; index?: DiffPropertyChange }>;
   };
 }
@@ -244,8 +206,8 @@ export interface ListDiff {
 export interface InvocationDiff {
   kind: "invocation";
   bindings: {
-    added: string[]; // IDs of added bindings. Retrieve full details from the changed model.
-    removed: string[]; // IDs of removed bindings. Retrieve full details from the base model.
+    added: string[];
+    removed: string[];
     modified: Record<
       string,
       {
@@ -259,14 +221,14 @@ export interface InvocationDiff {
 export interface RelationDiff {
   kind: "relation";
   columns: {
-    added: string[]; // IDs of added columns. Retrieve full details from the changed model.
-    removed: string[]; // IDs of removed columns. Retrieve full details from the base model.
+    added: string[];
+    removed: string[];
     modified: Record<string, DiffPropertyChange[]>;
   };
   rows: {
-    added: string[]; // IDs of added rows. Retrieve full details from the changed model.
-    removed: string[]; // IDs of removed rows. Retrieve full details from the base model.
-    modified: Record<string, { index?: DiffPropertyChange; cells: Record<number, BoxedExpressionDiff> }>; // Row ID -> Diff
+    added: string[];
+    removed: string[];
+    modified: Record<string, { index?: DiffPropertyChange; cells: Record<number, BoxedExpressionDiff> }>;
   };
 }
 
